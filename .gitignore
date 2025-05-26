@@ -47,3 +47,14 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# word docs
+*.doc
+*.docx
+
+# folders
+data/
+model/
+output/
+report/
+tmp/

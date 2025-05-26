@@ -1,0 +1,609 @@
+---
+title: "Supplementary material"
+subtitle: "Estimation of brown shrimp stock and fishery dynamics in the German Bight using a novel biomass index"
+
+author: 
+  - Marc H. Taylor, Holger Haslob, Kim Hünerlage, Karl Michael Werner, and Alexander Kempf
+
+
+
+
+output:
+  
+  # pdf_document:
+  #   latex_engine: xelatex
+  #   number_sections: TRUE
+  #   toc_depth: 3
+  #   highlight: tango
+  #   keep_tex:  true
+    
+  word_document:
+    # toc: true # inclusion will prevent update when .doc is open
+    toc_depth: 3
+    highlight: tango
+    reference_docx: data/template.docx
+
+papersize: a4
+bibliography: data/refs.bib
+csl: data/style.csl
+---
+
+```{r setup, include=FALSE}
+library(png)
+library(formatR)
+library(knitr)
+library(flextable)
+library(ggplot2)
+library(sinkr)
+library(tidyr)
+library(kableExtra)
+library(flextable)
+library(mgcv)
+library(sdmTMB)
+
+
+knitr::opts_chunk$set(
+  cache = FALSE, # TRUE for speed. Remember to empty cache after changes to R code sections
+  cache.path = 'cache_supplMat/', fig.path  ='tex_supplMat/',
+  # fig.align='center',
+  comment=NA,
+  message=FALSE, warning=FALSE, echo=TRUE,
+  tidy.opts=list(width.cutoff=60), tidy=TRUE # automatically wraps code
+)
+
+options(knitr.kable.NA = '')
+
+# set global flextable layout
+fonttype <- "Arial"
+set_flextable_defaults(
+  # font.family = "Palatino Linotype",
+  # hansi.family = "Palatino Linotype",
+  # cs.family = "Palatino Linotype",
+  font.family = fonttype,
+  hansi.family = fonttype,
+  cs.family = fonttype,
+  font.size = 8.5,
+  theme_fun = "theme_vanilla",
+  big.mark = "" # no 1000 separator
+)
+
+
+
+# set.seed(1)
+iFig = 0
+iTab = 0
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<!-- Bla di bla [@pastoors_effects_2000]. @friedland_trends_2021 results support other studies [@chong_performance_2020;  @taylor_using_2021]. Cite Pastoors without adding name [-@pastoors_effects_2000] -->
+
+
+
+
+# Data
+
+## Demersal Young Fish Survey (DYFS)
+
+Figures S`r paste0(iFig+1, "-", iFig+2)` show the frequency of samples by calendar date and year, respectively.
+
+```{r echo=FALSE}
+fname <- file.path("output/dyfs_freq_by_date.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Frequency of samples by calendar date from the German Demersal Young Fish Survey (DYFS). 
+
+<br>
+<br>
+
+
+```{r echo=FALSE}
+fname <- file.path("output/dyfs_freq_by_year.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Frequency of samples by year from the German Demersal Young Fish Survey (DYFS). 
+
+<br>
+<br>
+
+\pagebreak
+
+
+# Biomass estimation
+
+
+## Model description
+
+Spatial mesh used by the SPDE (stochastic partial differential equation) based approach is shown in Figure S`r iFig+1`. Conversion to UTM units, max. mesh edge length was set to 20 km for the inner boundary. An exterior barrier was defined using a spatial polygon defining the coastline, major islands, and an outer limit that approximated the furthest offshore extent of Demersal Young Fish Survey (DYFS) sample locations.
+  
+  
+```{r, echo=FALSE}
+fname <- file.path("output/mesh.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** SPDE (Stochastic Partial Differential Equation) mesh used to define spatial and spatiotemporal terms in the sdmTMB model (@anderson_sdmtmb_2022). Interpolation is prevented across the barrier (blue line), defined by the coastline, major islands, and an outer limit that approximate the furthest offshore extent of DYFS sample locations. 
+
+<br>
+<br>
+
+\pagebreak
+ 
+## Model selection
+
+### Cross-validation folds
+
+Spatial correlogram [R package *ncf*, @bjornstad_ncf_2022] was used to determine distance where autocorrelation is removed (~15 km). Thereafter spatial blocks approximating this resolution were assigned randomly to 5 cross-validation folds [R package *spatialsample*, @mahoney_assessing_2023] (Figure S`r iFig+1`). For each year, fold numbers were randomly shuffled to create both spatial and temporal gaps. 
+
+
+```{r, echo=FALSE}
+fname <- file.path("output/cv_blocks_combined.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Spatial blocks used for cross validation prediction performance testing (~15 km resolution). 
+
+<br>
+<br>
+
+\pagebreak
+
+### Cross validation model statistics
+
+**Table S`r iTab=iTab+1; iTab`.** Cross-validation performance metrics for each biomass size fraction model. Stars indicate the best performance of each metric by model.
+
+```{r model_selection, echo=FALSE}
+
+L <- vector("list")
+for(size in c("small", "large", "combined")){
+  fnameAppendix <- size
+  load(file = file.path("model", paste0("modlut", "_", fnameAppendix, ".Rdata")))
+  
+  hit <- sort(which(names(modlut) %in% c("mre", "mare", "mae", "mdae", "rmse", "logrmse")))
+  modlut[,hit] <- apply(modlut[,hit], MARGIN = 2, FUN = function(x){
+    paste0(sprintf("%.3f", x), ifelse(x^2 == min(x^2, na.rm = T), "*", " "))
+  })
+  
+  hit <- sort(which(names(modlut) %in% c("logLik")))
+  x <- modlut[,hit]
+  modlut[,hit] <- paste0(sprintf("%.0f", x), ifelse(x == max(x, na.rm = T), "*", " "))
+  
+  modlut$fraction <- fnameAppendix
+  L[[size]] <- modlut
+}
+
+# combine
+lut <- do.call("rbind", L)
+lut <- lut[,c("fraction", "name", "mre", "mare", "logLik")]
+names(lut) <- c("Fraction", "Model", "MRE", "MARE", "logLik")
+
+# ft <- flextable(lut, col_keys = c("fraction", "Model", "rmse", "logrmse", "mae", "logLik"))
+ft <- flextable(lut)
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- set_table_properties(ft, layout = "autofit")
+ft <- merge_v(ft, j = ~ Fraction)
+ft
+
+```
+
+<br>
+<br>
+
+\pagebreak
+
+## Best model summaries
+
+`r fnameAppendix <- "small"`
+
+**Table S`r iTab=iTab+1; iTab`.** Best model parameter summary for the `r fnameAppendix` size fraction model.
+
+```{r, echo = FALSE}
+fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
+load(file = fname)
+tmp1 <- tidy(bestmod, effects = "fixed", conf.int = T)
+tmp1 <- merge(data.frame(Component = "A. fixed parameters"), tmp1)
+
+tmp2 <- tidy(bestmod, effects = "ran_pars", conf.int = T)
+tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2)
+
+ft <- flextable(rbind(tmp1, tmp2))
+ft <- merge_v(ft, j = 1)
+ft <- colformat_double(ft, j = 3:6, digits = 3)
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- set_table_properties(ft, layout = "autofit")
+
+ft
+```
+
+<br>
+<br>
+
+
+`r fnameAppendix <- "large"`
+
+**Table S`r iTab=iTab+1; iTab`.** Best model parameter summary for the `r fnameAppendix` size fraction model.
+
+```{r, echo = FALSE}
+fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
+load(file = fname)
+tmp1 <- tidy(bestmod, effects = "fixed", conf.int = T)
+tmp1 <- merge(data.frame(Component = "A. fixed parameters"), tmp1)
+
+tmp2 <- tidy(bestmod, effects = "ran_pars", conf.int = T)
+tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2)
+
+ft <- flextable(rbind(tmp1, tmp2))
+ft <- merge_v(ft, j = 1)
+ft <- colformat_double(ft, j = 3:6, digits = 3)
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- set_table_properties(ft, layout = "autofit")
+
+ft
+```
+
+<br>
+<br>
+
+
+`r fnameAppendix <- "combined"`
+
+**Table S`r iTab=iTab+1; iTab`.** Best model parameter summary for the `r fnameAppendix` size fraction model.
+
+```{r, echo = FALSE}
+fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
+load(file = fname)
+tmp1 <- tidy(bestmod, effects = "fixed", conf.int = T)
+tmp1 <- merge(data.frame(Component = "A. fixed parameters"), tmp1)
+
+tmp2 <- tidy(bestmod, effects = "ran_pars", conf.int = T)
+tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2)
+
+ft <- flextable(rbind(tmp1, tmp2))
+ft <- merge_v(ft, j = 1)
+ft <- colformat_double(ft, j = 3:6, digits = 3)
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- set_table_properties(ft, layout = "autofit")
+
+ft
+```
+
+<br>
+<br>
+\pagebreak
+
+### Q-Q plots
+
+```{r, echo=FALSE}
+fname <- file.path("output/qqplot_by_fraction.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Q-Q (quantile–quantile) plots of the best fitting model by size fraction. 
+
+<br>
+<br>
+
+\pagebreak
+
+
+### Prediction and index
+
+Figures S`r paste0(iFig+1, "-", iFig+2)` show the predicted biomass by year for the small and large size fractions. A comparison of the aggregated yearly index from the small and large biomass fraction models is compared to the single index of combined biomass model in Figure S`r iFig+3`
+
+```{r, echo=FALSE}
+fname <- file.path("output/pred_maps2_small.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Spatially-predicted biomass by year for the small size fraction. 
+
+<br>
+<br>
+
+\pagebreak
+
+
+```{r, echo=FALSE}
+fname <- file.path("output/pred_maps2_large.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Spatially-predicted biomass by year for the large size fraction. 
+
+<br>
+<br>
+
+\pagebreak
+
+
+```{r, echo=FALSE}
+fname <- file.path("output/indices_combined_vs_added.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Comparison of the combined biomass index versus the aggregate index of the small and large size fractions. 
+
+<br>
+<br>
+
+\pagebreak
+
+
+### Depth effect
+
+The effect of depth as modeled by the best model is shown in Figure S`r iFig+1`. 
+
+
+```{r, echo=FALSE}
+fname <- file.path("output/depthEffect.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Depth effect by size fraction model. The prediction (black line) and 95% confidence interval (shaded area) in shown. The confidence interval width is influenced by the number of samples at depth, indicated by the inner ticks ("rug") on bottom axis. 
+
+<br>
+<br>
+
+Part of the depth effect is captured by the random spatiotemporal fields, which consistently predicts higher biomass in the nearshore areas. Examination of the median predictions across sample years shows the overall trend in biomass versus depth. Figure S`r iFig+1` describes this trend using a Generalized Additive Model (GAM) [R package *mgcv*, @wood_mgcv_2020], with median predicted biomass as the response, and a spline term on depth as the explanatory variable. The model assumes a Gaussian error distribution with log-link. The trend shows a somewhat stronger decrease in biomass with increasing depth for the small biomass fraction. 
+
+
+```{r, echo=FALSE}
+fname <- file.path("output/median_prediction~depth.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Trend in median predicted biomass by spatial grid versus depth. Panels show the trend in absolute (left) and scaled (right) biomass units.
+
+<br>
+<br>
+
+\pagebreak
+
+
+#	LPUE versus biomass index
+
+The call to the General Linear Model (GLM) describing landings per unit effort (LPUE) as a function of biomass was as follows:
+
+```{r echo = FALSE}
+load("output/lpue~biomass_Lregr.Rdata")
+LregrSep$combined$fit$call
+```
+
+<br>
+<br>
+
+**Table S`r iTab=iTab+1; iTab`.** Model of LPUE as a function of biomass. For each model, based on unique time period and size fraction combinations, the relationship coefficient estimates and confidence interval (95%), relationship shape type and $R^2$ are presented. 
+
+```{r echo=FALSE}
+load("output/lpue~biomass_Lregr.Rdata")
+
+round_lev <- 2
+res1 <- list()
+for(i in seq(LregrSep)){
+  tmp <- as.data.frame(round(summary(LregrSep[[i]]$fit)$coef, round_lev))
+  tmp$coeff <- c("a", "b")
+  tmp$frac <- names(LregrSep)[i]
+  tmp$period <- "Sep only"
+  tmp$r2 <- round(LregrSep[[i]]$R2, round_lev)
+  res1[[i]] <- tmp
+}
+res1 <- do.call("rbind", res1)
+
+res2 <- list()
+for(i in seq(LregrFall)){
+  tmp <- as.data.frame(round(summary(LregrFall[[i]]$fit)$coef, round_lev))
+  tmp$coeff <- c("a", "b")
+  tmp$frac <- names(LregrFall)[i]
+  tmp$period <- "Sep-Dec"
+  tmp$r2 <- round(LregrFall[[i]]$R2, round_lev)
+  res2[[i]] <- tmp
+}
+res2 <- do.call("rbind", res2)
+
+res <- rbind(res1, res2)
+
+# add CIs
+res$Estimate_ci <- paste0(
+  res$Estimate, " (", 
+    sprintf(paste0("%.",round_lev, "f"), round(res$Estimate-1.96*res$`Std. Error`, round_lev)), 
+    ", ", 
+    sprintf(paste0("%.",round_lev, "f"), round(res$Estimate+1.96*res$`Std. Error`, round_lev)),
+    ")"
+  )
+
+# calculate shape
+res$shape <- NULL
+for(p in unique(res$period)){
+  for(f in unique(res$frac)){
+    hit <- which(res$period == p & res$frac == f)
+    hitb <- which(res$period == p & res$frac == f & res$coeff == "b")
+    breaks <- c(-Inf, 
+      res$Estimate[hitb] - 1.96*res$`Std. Error`[hitb], 
+      res$Estimate[hitb] + 1.96*res$`Std. Error`[hitb], 
+    Inf)
+    res$shape[hit] <- c("Hyperstability", "Proportionality", "Hyperdepletion")[cut(res$Estimate[hitb], breaks = breaks)]
+  }
+}
+
+
+res <- res[, c("period", "frac", "coeff", "Estimate_ci", "shape", "r2")]
+names(res) <- c("Period", "Size fraction", "coef.", "Estimate (CI)", "Shape", "R2")
+
+ft <- flextable(res)
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- set_table_properties(ft, layout = "autofit")
+ft <- merge_v(ft, j = c("Period", "Size fraction", "R2"))
+for(i in seq(1,nrow(res),2)){
+  ft <- merge_at(ft, i = i:(i+1), j = 5)
+}
+ft
+```
+Note: Shape refers to whether the resulting relationship $LPUE = a \cdot Biomass ^ b$ implies *proportionality* ($b \approx 1$), *hyperstability*  ($b<1$) or *hyperdepletion* ($b>1$), based on the coefficient estimate and whether it is significantly above or below 1.0; $a$ coefficients are log-transformed
+
+<br>
+<br>
+
+\pagebreak
+
+#	Historical reconstruction
+
+## Discard rate
+
+The call to the GAM describing seasonal and interannual changes in discard rates was as follows:
+
+```{r echo = FALSE}
+drPred <- readRDS(file = "output/prediction_discardRate.rds")
+fit <- readRDS("output/discardRate_gam.rds")
+fit$call
+```
+
+<br>
+<br>
+
+
+
+**Table S`r iTab=iTab+1; iTab`.** GAM model summary of discard rate as a function of year (annual term) and fraction of year (seasonal term). 
+
+```{r echo=FALSE}
+fit <- readRDS("output/discardRate_gam.rds")
+ft <- as_flextable(fit)
+ft <- set_table_properties(ft, layout = "autofit")
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- bg(ft, i=2, bg = "grey80")
+
+ft
+```
+
+<br>
+<br>
+
+```{r include=FALSE}
+drSum <- drPred[yeardec < 2013, .(DR = mean(DR), mon = month.abb[mean(month)] ), by = .(month)]
+drSum <- drSum[c(DR == min(DR) | DR == max(DR)),]
+drSum <- drSum[order(drSum$DR)]
+drSumLab <- as.character(paste0(round(drSum$DR[1], 2), " (", drSum$mon[1], ") - ", 
+  round(drSum$DR[2], 2), " (", drSum$mon[2], ")" ))
+
+```
+
+
+The resulting mean monthly average discard rates used for the pre-data historical period (2000-2013) ranged between  `r drSumLab`.
+
+<br>
+<br>
+
+\pagebreak
+
+## Biomass
+
+The call to the GLM describing biomass as a function of catch per unit effort (CPUE) was as follows:
+
+```{r echo = FALSE}
+load("output/biomass~cpue_bfit.Rdata")
+bfit$call
+```
+<br>
+<br>
+
+
+**Table S`r iTab=iTab+1; iTab`.** Model of biomass as a function of CPUE. The relationship coefficient estimates and confidence interval (95%), relationship shape type and $R^2$ are presented. 
+
+```{r echo=FALSE}
+load("output/biomass~cpue_bfit.Rdata")
+
+round_lev <- 2
+res <- as.data.frame(round(summary(bfit)$coef, round_lev))
+res$coeff <- c("a", "b")
+res$r2 <- round(1-bfit$deviance/bfit$null.deviance, round_lev)
+
+# add CIs
+res$Estimate_ci <- paste0(
+  res$Estimate, " (", 
+    sprintf(paste0("%.",round_lev, "f"), round(res$Estimate-1.96*res$`Std. Error`, round_lev)), 
+    ", ", 
+    sprintf(paste0("%.",round_lev, "f"), round(res$Estimate+1.96*res$`Std. Error`, round_lev)),
+    ")"
+  )
+
+# calculate shape
+res$shape <- NULL
+hitb <- which(res$coeff == "b")
+breaks <- c(-Inf, 
+  res$Estimate[hitb] - 1.96*res$`Std. Error`[hitb], 
+  res$Estimate[hitb] + 1.96*res$`Std. Error`[hitb], 
+Inf)
+res$shape <- c("Hyperdepletion", "Proportionality", "Hyperstability")[cut(res$Estimate[hitb], breaks = breaks)]
+
+res <- res[, c("coeff", "Estimate_ci", "shape", "r2")]
+names(res) <- c("coef.", "Estimate (CI)", "Shape", "R2")
+
+ft <- flextable(res)
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- set_table_properties(ft, layout = "autofit")
+ft <- merge_v(ft, j = c("R2", "Shape"))
+ft
+
+```
+Note: Shape refers to whether the resulting relationship $Biomass = a \cdot CPUE ^ b$ implies *proportionality* ($b \approx 1$), *hyperstability* ($b>1$) or *hyperdepletion* ($b<1$), based on the coefficient estimate and whether it is significantly above or below 1.0; $a$ coefficients are log-transformed
+
+
+<br>
+<br>
+
+\pagebreak
+
+
+## Harvest rate and fishing mortality
+
+```{r echo=FALSE}
+fname <- file.path("output/harvest_rate_mean~year.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Mean monthly harvest rates (Mar-Nov) by year as estimated from the historical reconstruction. 
+
+
+<br>
+<br>
+
+Using German fleet logbook data, the number of unique vessel identifiers that target brown shrimp were counted per year. Targeting vessels were determined through their use of fishing gear associated with the brown shrimp fishery (beam trawls with small mesh sizes). 
+
+```{r echo=FALSE}
+fname <- file.path("output/fleet_size~year.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Number of vessels in the German fleet that target brown shrimp by year.   
+
+
+<br>
+<br>
+
+\pagebreak
+
+
+
+
+
+# References
