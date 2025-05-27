@@ -1,0 +1,24 @@
+---
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# gbCrangon
+
+Code accompanying the paper by Taylor et al., "Estimation of brown shrimp stock and fishery dynamics in the German Bight using a novel biomass index"
+
+<!-- paste(version$major, version$minor, sep = ".") -->
+As of June 2025, this analysis has been run in R Version 4.4.2, with the following package versions:  
+
+```{r echo=FALSE}
+pkgs <- c(
+  "tidyr", "dplyr", "data.table", "pals", "sinkr", 
+  "ggplot2", "ggeffects", "ggrepel", "patchwork", 
+  "zoo", "terra", "sf", "sp", "ncdf4", "smoothr", "maps", "mapdata", 
+  "INLA", "sdmTMB", "mgcv", "spatialsample", "ncf", "parallel", "future", "rmarkdown")
+
+unlist(lapply(pkgs, function(x){paste0(x, " (", packageVersion(x), ")")}))
+```
