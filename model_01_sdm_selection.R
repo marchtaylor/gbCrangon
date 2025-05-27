@@ -290,8 +290,7 @@ for(size in sizeGroups){
     time = "year", 
     spatiotemporal = ST,
     spatial = "on",
-    reml = TRUE#,
-    # previous_fit = bestmodcv$models[[1]] # better results fitting fresh
+    reml = TRUE
   )
   t2 <- Sys.time()
   t2-t1

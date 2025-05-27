@@ -35,6 +35,8 @@ library(ncf)
 library(parallel)
 library(future)
 
+library(rmarkdown)
+
 
 # run scripts -------------------------------------------------------------
 
