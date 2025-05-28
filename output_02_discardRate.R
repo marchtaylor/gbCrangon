@@ -145,7 +145,7 @@ p3
 p <- ((p1|p2)/p3) & theme(text = element_text(size = 10))
 p
 
-png("output/discardRate_GAM.png", width = 7, height = 5, units = "in", res = 400)
+png("output/discardRate_GAM.png", width = 7, height = 5, units = "in", res = 1000)
 print(p)
 dev.off()
 

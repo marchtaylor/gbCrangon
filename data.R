@@ -2,6 +2,11 @@
 
 rm(list = ls())
 
+# make directories -------------------------------------------------------------
+dir.create("data", showWarnings = F)
+dir.create("model", showWarnings = F)
+dir.create("output", showWarnings = F)
+dir.create("report", showWarnings = F)
 
 # load packages ----------------------------------------------------------------
 

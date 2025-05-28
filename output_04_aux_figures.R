@@ -166,7 +166,7 @@ p <- ggplot(df) + aes(x = Var1, y = Freq) +
   theme_bw() + 
   theme(text = element_text(size = 10))
 
-png("output/dyfs_freq_by_year.png", width = 5, height = 3.5, units = "in", res = 600)
+png("output/dyfs_freq_by_year.png", width = 5, height = 3.5, units = "in", res = 1000)
   print(p)
 dev.off()
 
@@ -188,7 +188,7 @@ p <- ggplot(df) + aes(date) +
   theme_bw() + 
   theme(text = element_text(size = 10))
 
-png("output/dyfs_freq_by_date.png", width = 5, height = 3.5, units = "in", res = 600)
+png("output/dyfs_freq_by_date.png", width = 5, height = 3.5, units = "in", res = 1000)
   print(p)
 dev.off()
 
@@ -236,7 +236,7 @@ dev.off()
 # mesh ----
 load(file = "data/mesh.Rdata")
 
-png("output/mesh.png", width = 6, height = 5, units = "in", res = 400)
+png("output/mesh.png", width = 6, height = 5, units = "in", res = 1000)
 op <- par(mar = c(3.5,3.5,1,1), mgp = c(2,0.5,0), ps = 10)
 plot(mesh)
 axis(1)
@@ -275,7 +275,7 @@ xyRatio <- earthDist(lon1 = min(tmp$X), lat1 = mean(tmp$Y), lon2 = max(tmp$X), l
 
 
 fname <- file.path("output", "map_median_prediction.png")
-png(fname, width = 3.5, height = 3.5/xyRatio, units = "in", res = 400)
+png(fname, width = 3.5, height = 3.5/xyRatio, units = "in", res = 600)
 op <- par(mar = c(3,3,0.5,0.5), ps = 9, mgp = c(1.75,0.5,0))
 
 image(bathy2, col = NA, asp = NA, xlim = c(6.2, 9.2), ylim = c(53.3, 55.3),
@@ -355,7 +355,7 @@ p <- (p1 + p2) + patchwork::plot_layout(guides = "collect", axes = "collect_x") 
   theme(text = element_text(size = 10))
 p 
 
-png("output/median_prediction~depth.png", width = 7, height = 3, units = "in", res = 400)
+png("output/median_prediction~depth.png", width = 7, height = 3, units = "in", res = 1000)
   print(p)
 dev.off()
 
@@ -396,7 +396,7 @@ p <- ggplot(idx) + aes(x = year, y = est, group = frac, color = frac, fill = fra
   theme_bw() + 
   theme(text = element_text(size = 10))
 
-png("output/indices_all.png", width = 7, height = 4.5, units = "in", res = 400)
+png("output/indices_all.png", width = 7, height = 4.5, units = "in", res = 1000)
   print(p)
 dev.off()
 
@@ -417,7 +417,7 @@ p <- ggplot(idx) + aes(x = year, y = est, group = frac, color = frac, fill = fra
   theme_bw() + 
   theme(text = element_text(size = 10))
 
-png("output/indices_combined_vs_added.png", width = 6, height = 3.5, units = "in", res = 400)
+png("output/indices_combined_vs_added.png", width = 6, height = 3.5, units = "in", res = 1000)
   print(p)
 dev.off()
 
@@ -444,7 +444,7 @@ p <- ggplot(df) + aes(sample = resid, group = frac) +
 p
 
 (fname <- file.path("output", paste0("qqplot_by_fraction.png")))
-png(fname, width = 7, height = 3.5, units = "in", res = 400)
+png(fname, width = 7, height = 3.5, units = "in", res = 1000)
   print(p)
 dev.off()
 
@@ -462,7 +462,7 @@ p <- ggplot(agg) + aes(x = year, y = hr) +
   theme_bw() +
   theme(text = element_text(size = 10))
 
-png("output/harvest_rate_mean~year.png", width = 5, height = 3.5, units = "in", res = 600)
+png("output/harvest_rate_mean~year.png", width = 5, height = 3.5, units = "in", res = 1000)
   print(p)
 dev.off()
 
@@ -481,7 +481,7 @@ p <- ggplot(df) + aes(x = year, y = nEunr) +
   theme_bw() +
   theme(text = element_text(size = 10))
 
-png("output/fleet_size~year.png", width = 5, height = 3.5, units = "in", res = 600)
+png("output/fleet_size~year.png", width = 5, height = 3.5, units = "in", res = 1000)
   print(p)
 dev.off()
 

@@ -41,7 +41,7 @@ for(size in sizeGroups){
   
   p <- spatialsample::autoplot(clust2)
   (fname <- file.path("output", paste0("cv_blocks", "_", fnameAppendix, ".png")))
-  png(fname, width = 6, height = 5, units = "in", res = 400)
+  png(fname, width = 6, height = 5, units = "in", res = 1000)
   print(p)
   dev.off()
   
@@ -56,7 +56,7 @@ for(size in sizeGroups){
   tmp <- residuals(bestmod) # randomized quantile residuals
   
   (fname <- file.path("output", paste0("qqplot", "_", fnameAppendix, ".png")))
-  png(fname, width = 5, height = 4.5, units = "in", res = 400)
+  png(fname, width = 5, height = 4.5, units = "in", res = 1000)
   qqnorm(tmp)
   qqline(tmp)
   dev.off()
@@ -84,7 +84,7 @@ for(size in sizeGroups){
   print(p2)
   
   (fname <- file.path("output", paste0("depthEffect", "_", fnameAppendix, ".png")))
-  png(fname, width = 5, height = 4.5, units = "in", res = 400)
+  png(fname, width = 5, height = 4.5, units = "in", res = 1000)
     print(p2)
   dev.off()
   
@@ -143,7 +143,7 @@ for(size in sizeGroups){
   save(pred, index, file = fname)
   
   (fname <- file.path("output", paste0("index_w_ci", "_", fnameAppendix, ".png")))
-  png(fname, width = 6, height = 5, units = "in", res = 400)
+  png(fname, width = 6, height = 5, units = "in", res = 1000)
   p <- ggplot(index, aes(year, est)) +
     geom_ribbon(aes(ymin = lwr, ymax = upr), fill = "grey70") +
     geom_line(lwd = 1, colour = "blue") +

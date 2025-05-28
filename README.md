@@ -5,6 +5,34 @@ Code accompanying the paper by Taylor et al., “Estimation of brown
 shrimp stock and fishery dynamics in the German Bight using a novel
 biomass index”
 
+## Reproducing the analysis
+
+The scripts should be run in the following sequence
+
+- *data.R*
+  - data_01_adjust_WGCRAN_data.R - prepares fishery-dependent data
+  - data_02_make_data_mesh.R - prepares survey-dependent data,
+    prediction grid, and mesh for use by sdmTMB
+- *model.R*
+  - model_01_sdm_selection.R - runs cross validation of sdmTMB models
+    and calculates performance metrics
+- *output.R*
+  - output_01_index_and_pred.R - produces annual biomass indices and
+    spatial predictions  
+  - output_02_discardRate.R - fits model describing temporal changes to
+    discard rates
+  - output_03_indexCorr_histRecon.R - evaluates relationship of
+    fisheries-dependent indices to biomass estimates, and
+    reconstructions monthly biomass and fishery dynamics
+  - output_04_aux_figures.R - produces additional figures
+- *report.R*
+  - report_01_gen_pkg_vers.R - extract package versions used by the
+    analysis
+  - report_02_supplMat.Rmd - produces the supplementary material
+    document
+  - report_03_fig_transfer.R - transfers and renames numbered manuscript
+    figures
+
 <!-- paste(version$major, version$minor, sep = ".") -->
 
 As of June 2025, this analysis has been run in R Version 4.4.2, with the

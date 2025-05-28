@@ -70,7 +70,7 @@ p <- ggplot(subset(dfIdx, fraction != "added")) +
   )
 print(p)
 
-png("output/indices_all_wCI.png", width = 3.5, height = 5, units = "in", res = 400)
+png("output/indices_all_wCI.png", width = 3.5, height = 5, units = "in", res = 1000)
 print(p)
 dev.off()
 
@@ -277,7 +277,7 @@ p <- ggplot(data = df) + aes(x = est, y = lpue) +
 
 
 png("output/index_vs_lpue_by_period+fraction.png", width = 6.6, height = 4.5, 
-  units = "in", res = 600)
+  units = "in", res = 1000)
 print(p)
 dev.off()
 
@@ -385,7 +385,7 @@ print(p)
 
 
 png("output/cpueRecon_vs_index.png", width = 3.5, height = 3, 
-  units = "in", res = 600)
+  units = "in", res = 1000)
 print(p)
 dev.off()
 
@@ -466,7 +466,7 @@ p <- ggplot(data = dat) + aes(x = est, y = q) +
 print(p)
 
 png("output/q_vs_index.png", width = 3.5, height = 3.5, 
-  units = "in", res = 600)
+  units = "in", res = 1000)
 print(p)
 dev.off()
 
@@ -554,7 +554,7 @@ p
 
 
 (fname <- file.path("output", paste0("ts_stacked.png")))
-png(fname, width = 7.5, height = 9, units = "in", res = 400)
+png(fname, width = 7.5, height = 9, units = "in", res = 1000)
   print(p)
 dev.off()
 #
