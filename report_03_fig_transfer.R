@@ -18,3 +18,4 @@ figLut
 for(i in seq(nrow(figLut))){
   file.copy(from = figLut$from[i], to = figLut$to[i], overwrite = T)
 }
+

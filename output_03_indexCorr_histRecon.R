@@ -512,7 +512,7 @@ tmp
 # n_levels <- 2
 # COLS <- scales::brewer_pal(palette = "Set1")(n_levels)
 # plot(seq(n_levels), col = COLS, cex = 3, pch = 16)
-COLS <- c(4,3)
+COLS <- c("#0072B2", "#D55E00")# "#E69F00")
 x.breaks <- seq.Date(as.Date("2000-01-01"), as.Date("2024-01-01"), by = "1 year")
 x.labs <- format(x.breaks, "%Y")
 diff(x.breaks)
