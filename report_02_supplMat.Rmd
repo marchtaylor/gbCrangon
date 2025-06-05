@@ -413,7 +413,7 @@ for(i in seq(LregrFall)){
   tmp <- as.data.frame(round(summary(LregrFall[[i]]$fit)$coef, round_lev))
   tmp$coeff <- c("a", "b")
   tmp$frac <- names(LregrFall)[i]
-  tmp$period <- "Sep-Dec"
+  tmp$period <- "Sep-Nov"
   tmp$r2 <- round(LregrFall[[i]]$R2, round_lev)
   res2[[i]] <- tmp
 }

@@ -147,7 +147,7 @@ lapply(LregrSep, function(x){x$R2})
 
 
 ## Fall total -----
-mo_incl <- 9:12
+mo_incl <- 9:11
 agg <- aggregate(landings ~ year, data = landStats, subset = month %in% mo_incl, FUN = "sum", na.rm = T)
 agg <- merge(agg, aggregate(effort ~ year, data = landStats, subset = month %in% mo_incl, FUN = "sum", na.rm = T))
 agg$lpue <- agg$landings / agg$effort * 1000
@@ -239,11 +239,11 @@ rlines <- rbind(
 
 df$postMan <- df$year >= 2016
 df$fraction <- factor(df$fraction, levels = c("small", "large", "combined"))
-df$period <- factor(df$period, levels = c("Sep", "Fall"), labels = c("Sep only", "Sep-Dec"))
+df$period <- factor(df$period, levels = c("Sep", "Fall"), labels = c("Sep only", "Sep-Nov"))
 df2$fraction <- factor(df2$fraction, levels = c("small", "large", "combined"))
-df2$period <- factor(df2$period, levels = c("Sep", "Fall"), labels = c("Sep only", "Sep-Dec"))
+df2$period <- factor(df2$period, levels = c("Sep", "Fall"), labels = c("Sep only", "Sep-Nov"))
 rlines$fraction <- factor(rlines$fraction, levels = c("small", "large", "combined"))
-rlines$period <- factor(rlines$period, levels = c("Sep", "Fall"), labels = c("Sep only", "Sep-Dec"))
+rlines$period <- factor(rlines$period, levels = c("Sep", "Fall"), labels = c("Sep only", "Sep-Nov"))
 
 set.seed(2)
 p <- ggplot(data = df) + aes(x = est, y = lpue) + 
