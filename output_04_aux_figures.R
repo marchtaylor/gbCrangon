@@ -21,6 +21,7 @@ load(file = "data/orig_crs.Rdata")
 load(file = "data/target_crs.Rdata")
 load(file = "data/POLY.Rdata")
 
+# coastline data from https://www.eea.europa.eu/ds_resolveuid/06227e40310045408ac8be0d469e1189
 shapefile_path <- "P:/SFOZE2/datasets/coastline/European_coastline/Europe_coastline_poly.shp"
 coast_eur <- st_read(shapefile_path)
 class(coast_eur)
@@ -63,6 +64,7 @@ coast <- st_crop(x = coast_eur, y = EXT)
 EXT_lg <- ext(c(-5, 12, 50, 60))
 coast_lg <- st_crop(x = coast_eur, y = EXT_lg)
 
+# Bathymetry data from https://www.gebco.net/data-products/gridded-bathymetry-data
 bathy <- rast(x = "P:/SFOZE2/datasets/GEBCO_2019_27_Feb_2020_b99ec4d0e93a/gebco_2019_n65.0_s40.0_w-20.0_e15.0.nc")
 ras <- rast(ext = EXT, crs = orig_crs)
 bathy2 <- resample(bathy, ras, method = 'bilinear') # interpolate to raster resolution
