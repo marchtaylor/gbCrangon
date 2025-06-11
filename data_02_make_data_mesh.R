@@ -191,6 +191,7 @@ head(dfsub2)
 
 # make bathymetry field --------------------------------------------------------
 
+# Bathymetry data from https://www.gebco.net/data-products/gridded-bathymetry-data
 bathyOrig <- rast(x = "P:/SFOZE2/datasets/GEBCO_2019_27_Feb_2020_b99ec4d0e93a/gebco_2019_n65.0_s40.0_w-20.0_e15.0.nc")
 # plot(bathyOrig)
 bathy <- resample(bathyOrig, ras, method = 'bilinear') # interpolate to raster resolution
@@ -200,6 +201,7 @@ plot(bathy, col = pals::cividis(100))
 # make land field ---------------------------------------------------------
 
 # Load the shapefile
+# coastline data from https://www.eea.europa.eu/ds_resolveuid/06227e40310045408ac8be0d469e1189
 shapefile_path <- "P:/SFOZE2/datasets/coastline/European_coastline/Europe_coastline_poly.shp"
 coast <- st_read(shapefile_path)
 class(coast)
