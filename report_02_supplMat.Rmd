@@ -3,7 +3,7 @@ title: "Supplementary material"
 subtitle: "Estimation of brown shrimp stock and fishery dynamics in the German Bight using a novel biomass index"
 
 author: 
-  - Marc H. Taylor, Holger Haslob, Kim Hünerlage, Karl Michael Werner, and Alexander Kempf
+  - Marc H. Taylor, Holger Haslob, Kim Hünerlage, and Alexander Kempf
 
 
 
@@ -81,10 +81,6 @@ iTab = 0
 <br>
 <br>
 
-<!-- Bla di bla [@pastoors_effects_2000]. @friedland_trends_2021 results support other studies [@chong_performance_2020;  @taylor_using_2021]. Cite Pastoors without adding name [-@pastoors_effects_2000] -->
-
-
-
 
 # Data
 
@@ -161,54 +157,11 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 
 \pagebreak
 
-### Cross validation model statistics
-
-**Table S`r iTab=iTab+1; iTab`.** Cross-validation performance metrics for each biomass size fraction model. Stars indicate the best performance of each metric by model.
-
-```{r model_selection, echo=FALSE}
-
-L <- vector("list")
-for(size in c("small", "large", "combined")){
-  fnameAppendix <- size
-  load(file = file.path("model", paste0("modlut", "_", fnameAppendix, ".Rdata")))
-  
-  hit <- sort(which(names(modlut) %in% c("mre", "mare", "mae", "mdae", "rmse", "logrmse")))
-  modlut[,hit] <- apply(modlut[,hit], MARGIN = 2, FUN = function(x){
-    paste0(sprintf("%.3f", x), ifelse(x^2 == min(x^2, na.rm = T), "*", " "))
-  })
-  
-  hit <- sort(which(names(modlut) %in% c("logLik")))
-  x <- modlut[,hit]
-  modlut[,hit] <- paste0(sprintf("%.0f", x), ifelse(x == max(x, na.rm = T), "*", " "))
-  
-  modlut$fraction <- fnameAppendix
-  L[[size]] <- modlut
-}
-
-# combine
-lut <- do.call("rbind", L)
-lut <- lut[,c("fraction", "name", "mre", "mare", "logLik")]
-names(lut) <- c("Fraction", "Model", "MRE", "MARE", "logLik")
-
-# ft <- flextable(lut, col_keys = c("fraction", "Model", "rmse", "logrmse", "mae", "logLik"))
-ft <- flextable(lut)
-ft <- bg(ft, part = "header", bg = "grey80")
-ft <- set_table_properties(ft, layout = "autofit")
-ft <- merge_v(ft, j = ~ Fraction)
-ft
-
-```
-
-<br>
-<br>
-
-\pagebreak
-
 ## Best model summaries
 
 `r fnameAppendix <- "small"`
 
-**Table S`r iTab=iTab+1; iTab`.** Best model parameter summary for the `r fnameAppendix` size fraction model.
+**Table S`r iTab=iTab+1; iTab`.** Best model (mod3cv_tw_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
 
 ```{r, echo = FALSE}
 fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
@@ -217,7 +170,7 @@ tmp1 <- tidy(bestmod, effects = "fixed", conf.int = T)
 tmp1 <- merge(data.frame(Component = "A. fixed parameters"), tmp1)
 
 tmp2 <- tidy(bestmod, effects = "ran_pars", conf.int = T)
-tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2)
+tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2[,-1])
 
 ft <- flextable(rbind(tmp1, tmp2))
 ft <- merge_v(ft, j = 1)
@@ -234,7 +187,7 @@ ft
 
 `r fnameAppendix <- "large"`
 
-**Table S`r iTab=iTab+1; iTab`.** Best model parameter summary for the `r fnameAppendix` size fraction model.
+**Table S`r iTab=iTab+1; iTab`.** Best model (mod3cv_tw_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
 
 ```{r, echo = FALSE}
 fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
@@ -243,7 +196,7 @@ tmp1 <- tidy(bestmod, effects = "fixed", conf.int = T)
 tmp1 <- merge(data.frame(Component = "A. fixed parameters"), tmp1)
 
 tmp2 <- tidy(bestmod, effects = "ran_pars", conf.int = T)
-tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2)
+tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2[,-1])
 
 ft <- flextable(rbind(tmp1, tmp2))
 ft <- merge_v(ft, j = 1)
@@ -260,7 +213,7 @@ ft
 
 `r fnameAppendix <- "combined"`
 
-**Table S`r iTab=iTab+1; iTab`.** Best model parameter summary for the `r fnameAppendix` size fraction model.
+**Table S`r iTab=iTab+1; iTab`.** Best model (mod3cv_tw_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
 
 ```{r, echo = FALSE}
 fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
@@ -269,7 +222,7 @@ tmp1 <- tidy(bestmod, effects = "fixed", conf.int = T)
 tmp1 <- merge(data.frame(Component = "A. fixed parameters"), tmp1)
 
 tmp2 <- tidy(bestmod, effects = "ran_pars", conf.int = T)
-tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2)
+tmp2 <- merge(data.frame(Component = "B. random parameters"), tmp2[,-1])
 
 ft <- flextable(rbind(tmp1, tmp2))
 ft <- merge_v(ft, j = 1)
@@ -464,6 +417,8 @@ Note: Shape refers to whether the resulting relationship $LPUE = a \cdot Biomass
 
 \pagebreak
 
+
+
 #	Historical reconstruction
 
 ## Discard rate
@@ -513,9 +468,85 @@ The resulting mean monthly average discard rates used for the pre-data historica
 
 \pagebreak
 
-## Biomass
 
-The call to the GLM describing biomass as a function of catch per unit effort (CPUE) was as follows:
+##	CPUE versus exploitable biomass index
+
+The call to the General Linear Model (GLM) describing catch per unit effort (CPUE) as a function of exploitable biomass (combined sizes) was as follows:
+
+
+```{r echo = FALSE}
+load("output/cpue~biomass_bfitinv.Rdata")
+bfit.inv$call
+```
+
+<br>
+<br>
+
+A summary of the resulting relationship is presented in Table S`r iTab+1` and shown in Figure S`r iFig+1`.
+
+**Table S`r iTab=iTab+1; iTab`.** Model of CPUE as a function of biomass. The relationship coefficient estimates and confidence interval (95%), relationship shape type and $R^2$ are presented.
+
+
+```{r echo=FALSE}
+load("output/cpue~biomass_bfitinv.Rdata")
+
+round_lev <- 2
+res <- as.data.frame(round(summary(bfit.inv)$coef, round_lev))
+res$coeff <- c("a", "b")
+res$r2 <- round(1-bfit.inv$deviance/bfit.inv$null.deviance, round_lev)
+
+# add CIs
+res$Estimate_ci <- paste0(
+  res$Estimate, " (", 
+    sprintf(paste0("%.",round_lev, "f"), round(res$Estimate-1.96*res$`Std. Error`, round_lev)), 
+    ", ", 
+    sprintf(paste0("%.",round_lev, "f"), round(res$Estimate+1.96*res$`Std. Error`, round_lev)),
+    ")"
+  )
+
+# calculate shape
+res$shape <- NULL
+hitb <- which(res$coeff == "b")
+breaks <- c(-Inf, 
+  res$Estimate[hitb] - 1.96*res$`Std. Error`[hitb], 
+  res$Estimate[hitb] + 1.96*res$`Std. Error`[hitb], 
+Inf)
+res$shape <- c("Hyperstability", "Proportionality", "Hyperdepletion")[cut(res$Estimate[hitb], breaks = breaks)]
+
+res <- res[, c("coeff", "Estimate_ci", "shape", "r2")]
+names(res) <- c("coef.", "Estimate (CI)", "Shape", "R2")
+
+ft <- flextable(res)
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- set_table_properties(ft, layout = "autofit")
+ft <- merge_v(ft, j = c("R2", "Shape"))
+ft
+
+```
+
+Note: Shape refers to whether the resulting relationship $CPUE = a \cdot Biomass ^ b$ implies *proportionality* ($b \approx 1$), *hyperstability* ($b<1$) or *hyperdepletion* ($b>1$), based on the coefficient estimate and whether it is significantly above or below 1.0; $a$ coefficients are log-transformed
+
+
+<br>
+<br>
+
+
+```{r echo=FALSE}
+fname <- file.path("output/index_vs_cpueRecon.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Biomass estimate vs catch per unit effort (CPUE). 
+
+
+<br>
+<br>
+
+\pagebreak
+
+
+The inverse relationship, with exploitable biomass as the response variable and CPUE as the explanatory variable was used to predict monthly exploitable biomass in the entire time series. The call to the GLM was as follows:
 
 ```{r echo = FALSE}
 load("output/biomass~cpue_bfit.Rdata")
