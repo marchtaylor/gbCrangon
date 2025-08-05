@@ -59,7 +59,7 @@ p <- ggplot(subset(dfIdx, fraction != "added")) +
     plot.title = element_text(size = 12),
     legend.title = element_text(size = 8),
     legend.text =  element_text(size = 6),
-    legend.position = c(0.8,0.85), 
+    legend.position.inside = c(0.8,0.85), 
     # legend.direction = "horizontal",
     text = element_text(size = 7),
     axis.text = element_text(size = 7),
@@ -310,27 +310,29 @@ df <- merge(x = df, y = LindexSep[["combined"]][,c("year", "est")], all.x = TRUE
 bfit <- glm(formula = est ~ log(cpue), family = gaussian(link = "log"), 
   data = df)
 summary(bfit)
+1 - bfit$deviance/bfit$null.deviance
 
 bfit.inv <- glm(formula = cpue ~ log(est), family = gaussian(link = "log"), 
   data = df)
 summary(bfit.inv)
 1 - bfit.inv$deviance/bfit.inv$null.deviance
 
-df$pred <- predict(bfit, type = "response")
-plot(pred ~ est, df, log = "xy"); abline(0,1)
-SSres <- sum(resid(bfit)^2)
-SStot <- sum(scale(df$est, scale = F)^2)
-R2 <- 1 - bfit$deviance/bfit$null.deviance
-R2
+df$predB <- predict(bfit, type = "response")
+df$predCPUE <- predict(bfit.inv, type = "response")
 
-df2 <- data.frame(r2 = R2)
-df2$label <- paste0("italic(R)^2 == ", sprintf("%.2f", df2$r2))
-df2
+plot(predB ~ est, df, log = "xy"); abline(0,1)
+plot(predCPUE ~ cpue, df, log = "xy"); abline(0,1)
 
 
-### plot  -----
+
+### plot biomass as response  -----
+
 tmp <- bfit$data
 nd <- data.frame(cpue = seqRan(c(1e-8, tmp$cpue*1.2), 1000))
+
+dflab <- data.frame(r2 = 1 - bfit$deviance/bfit$null.deviance)
+dflab$label <- paste0("italic(R)^2 == ", sprintf("%.2f", dflab$r2))
+dflab
 
 
 # Predict with standard errors with type = "link"
@@ -347,7 +349,7 @@ response_fit <- bfit$family$linkinv(link_fit)
 response_lower_ci <- bfit$family$linkinv(link_lower_ci)
 response_upper_ci <- bfit$family$linkinv(link_upper_ci)
 
-nd$est <- response_fit
+nd$est <- response_fit #***
 nd$upper <- response_upper_ci
 nd$lower <- response_lower_ci
 
@@ -356,13 +358,10 @@ p <- ggplot(data = df) + aes(x = cpue, y = est) +
   geom_ribbon(data = nd, mapping = aes(ymin = lower, ymax = upper), fill = "grey", alpha = 0.3) +
   geom_line(data = nd, colour = "grey", linewidth = 1) +
   geom_point() + 
-  # 
-  # geom_line(data = nd, colour = "grey", linewidth = 1) +
-  # geom_point() + 
   geom_text_repel(mapping = aes(label = year), seed = 3, size = 2.5, 
     min.segment.length = 0, show.legend = F, color = "grey20") + 
   coord_cartesian(ylim = c(0, max(df$est)), xlim = c(0, max(df$cpue))) +
-  geom_label(data = df2, aes(x = 0, y = 20000, label = label), 
+  geom_label(data = dflab, aes(x = 0, y = 20000, label = label), 
     hjust = 0, vjust = 1, 
     parse = TRUE, size = 8, size.unit = "pt", 
     color = "grey20", fontface = "bold") +
@@ -389,31 +388,18 @@ png("output/cpueRecon_vs_index.png", width = 3.5, height = 3,
 print(p)
 dev.off()
 
+### plot cpue as response  -----
 
-### catchability -----
-dat <- bfit$data
-dat$q <- dat$cpue / dat$est
+tmp <- bfit.inv$data
+nd <- data.frame(est = seqRan(c(1e-8, tmp$est*1.2), 1000)) #***
 
-qfit <- glm(q ~ log(est), data = dat, family = gaussian(link = "log"))
-summary(qfit)
-R2 <- 1 - qfit$deviance/qfit$null.deviance
-R2
+dflab <- data.frame(r2 = 1 - bfit.inv$deviance/bfit.inv$null.deviance)
+dflab$label <- paste0("italic(R)^2 == ", sprintf("%.2f", dflab$r2))
+dflab
 
-qfit <- glm(q ~ I(1/est), data = dat, family = gaussian(link = "log"))
-summary(qfit)
-R2 <- 1 - qfit$deviance/qfit$null.deviance
-R2
-
-
-df2 <- data.frame(r2 = R2)
-df2$label <- paste0("italic(R)^2 == ", sprintf("%.2f", df2$r2))
-df2
-
-
-nd <- data.frame(est = seqRan(c(0,dat$est*1.2), length.out = 1000))
 
 # Predict with standard errors with type = "link"
-predictions_link <- predict(qfit, newdata = nd, type = "link", se.fit = TRUE)
+predictions_link <- predict(bfit.inv, newdata = nd, type = "link", se.fit = TRUE)
 
 # Calculate the 95% confidence intervals on the link scale
 link_fit <- predictions_link$fit
@@ -422,35 +408,29 @@ link_lower_ci <- link_fit - 1.96 * link_se
 link_upper_ci <- link_fit + 1.96 * link_se
 
 # Transform the predictions and CIs back to the response scale
-response_fit <- qfit$family$linkinv(link_fit)
-response_lower_ci <- qfit$family$linkinv(link_lower_ci)
-response_upper_ci <- qfit$family$linkinv(link_upper_ci)
+response_fit <- bfit.inv$family$linkinv(link_fit)
+response_lower_ci <- bfit.inv$family$linkinv(link_lower_ci)
+response_upper_ci <- bfit.inv$family$linkinv(link_upper_ci)
 
-nd$q <- response_fit
+nd$cpue <- response_fit #***
 nd$upper <- response_upper_ci
 nd$lower <- response_lower_ci
 
-plot(q~est, dat, ylim = c(0, max(q)), xlim = c(0,max(est)))
-lines(q~est, nd)
-lines(upper~est, nd, lty = 2)
-lines(lower~est, nd, lty = 2)
 
-
-set.seed(1)
-p <- ggplot(data = dat) + aes(x = est, y = q) + 
+p <- ggplot(data = df) + aes(x = est, y = cpue) + 
   geom_ribbon(data = nd, mapping = aes(ymin = lower, ymax = upper), fill = "grey", alpha = 0.3) +
   geom_line(data = nd, colour = "grey", linewidth = 1) +
   geom_point() + 
-  geom_text_repel(mapping = aes(label = year), size = 2.5, 
+  geom_text_repel(mapping = aes(label = year), seed = 3, size = 2.5, 
     min.segment.length = 0, show.legend = F, color = "grey20") + 
-  coord_cartesian(ylim = c(0, max(dat$q)), xlim = c(0, max(dat$est))) +
-  geom_label(data = df2, aes(x = 0, y = 0.05, label = label), 
+  coord_cartesian(ylim = c(0, max(df$cpue)), xlim = c(0, max(df$est))) +
+  geom_label(data = dflab, aes(x = 0, y = 4500, label = label), 
     hjust = 0, vjust = 1, 
     parse = TRUE, size = 8, size.unit = "pt", 
     color = "grey20", fontface = "bold") +
   theme_bw() +
-  labs(y = "Catchability (q) [t / 1000 days at sea / t]", 
-    x = "Biomass [t]") + 
+  labs(x = "Biomass estimate [t]", 
+    y = "Catch per unit effort (CPUE)\n[t / 1000 days at sea]") + 
   theme(
     plot.title = element_text(size = 12),
     legend.title = element_text(size = 9),
@@ -465,10 +445,12 @@ p <- ggplot(data = dat) + aes(x = est, y = q) +
 
 print(p)
 
-png("output/q_vs_index.png", width = 3.5, height = 3.5, 
+
+png("output/index_vs_cpueRecon.png", width = 3.5, height = 3, 
   units = "in", res = 1000)
 print(p)
 dev.off()
+
 
 # predict biomass in full data set -----
 recon$biomass <- predict(bfit, newdata = recon, type = "response")
@@ -489,24 +471,13 @@ agg$date <- as.Date(paste(agg$year, "-07-01", sep = ""))
 barplot(FMyr ~ year, agg)
 
 
-# surplus production
-recon$dBiomass <- c(recon$biomass[-1] - recon$biomass[-nrow(recon)], NaN)
-recon$sp <- c(recon$biomass[-1] - recon$biomass[-nrow(recon)] + recon$catch[-nrow(recon)], NaN)
-plot(sp~date, recon, t = "l")
-plot(sp~biomass, recon, t = "l")
-end <- nrow(recon)
-arrows(x0 = recon$biomass[-end], x1 = recon$biomass[-1], y0 = recon$sp[-end], y1 = recon$sp[-1], length = 0.1)
-
-agg1 <- aggregate(sp~year, data = recon, FUN = "sum")
-agg2 <- aggregate(biomass~year, data = recon, FUN = "mean")
-tmp <- merge(agg1, agg2)
-plot(sp~biomass, tmp, t = "l")
 
 
 ## stacked plot  -----
+tmp <- merge(x = recon, y = agg[,c("year", "FMyr")], all = T)
 
-tmp <- recon |> pivot_longer(cols = c("landings", "effort", "lpue", "DR", 
-"catch", "cpue", "biomass", "hr", "FMmo"))
+tmp <- tmp |> pivot_longer(cols = c("landings", "effort", "lpue", "DR", 
+"catch", "cpue", "biomass", "hr", "FMmo", "FMyr"))
 tmp
 
 # n_levels <- 2
@@ -539,12 +510,17 @@ p5 <- ggplot(data = subset(tmp, name == "hr")) + aes(x = date, y = value) +
   geom_line(color = COLS[1]) +
   labs(y = "Harvest rate [frac.]")
 
-p6 <- ggplot(data = agg) + aes(x = date, y = FMyr) + 
-  geom_col(fill = COLS[1], width =  0.8*diff(x.breaks)[1]) +
+p6 <- ggplot(data = subset(tmp, name == "FMyr")) + aes(x = date, y = value) + 
+  geom_line(color = COLS[1]) +
   labs(y = bquote("Fishing mort. (F) ["*y^-1*"]"))
+
+# p6 <- ggplot(data = agg) + aes(x = date, y = FMyr) + 
+#   geom_col(fill = COLS[1], width =  0.8*diff(x.breaks)[1]) +
+#   labs(y = bquote("Fishing mort. (F) ["*y^-1*"]"))
 
 p <- (p1/p2/p3/p4/p5/p6) + plot_layout(axes = "collect_x") & 
   theme_bw() & 
+  coord_cartesian(ylim = c(0,NA)) &
   theme(text = element_text(size = 10), 
     axis.title.x = element_blank(), 
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) &
@@ -573,6 +549,10 @@ save(LregrSep, LregrFall, file = "output/lpue~biomass_Lregr.Rdata")
 
 # b~cpue
 save(bfit, file = "output/biomass~cpue_bfit.Rdata")
+
+# cpue~b
+save(bfit.inv, file = "output/cpue~biomass_bfitinv.Rdata")
+
 
 # recon
 save(recon, file = "output/recon.Rdata")

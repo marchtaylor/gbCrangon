@@ -451,6 +451,20 @@ mesh4 <- sdmTMB::make_mesh(coords_df, c("X", "Y"), mesh = mesh3)
 plot(mesh4)
 
 
+# make mesh without boundary
+# - as before
+meshNoBound = inla.mesh.2d(
+  loc = cbind(coords_df$X, coords_df$Y),
+  max.edge = c(1,5)*max.edge,
+  # - use 5 times max.edge in the outer extension/offset/boundary
+  cutoff = max.edge/5,
+  offset = c(max.edge, bound.outer))
+plot(meshNoBound, main="No Boundary"); points(coords_df$X, coords_df$Y, pch = 20, col = adjustcolor("red", 0.2), cex = 1)
+
+
+meshNoBound <- sdmTMB::make_mesh(coords_df, c("X", "Y"), mesh = meshNoBound)
+plot(meshNoBound)
+
 # save objects ------------------------------------------------------------
 
 dat <- dfsub2
@@ -471,4 +485,5 @@ save(coast, file = "data/coast.Rdata")
 save(POLY, file = "data/POLY.Rdata")
 
 save(mesh, file = "data/mesh.Rdata")
+save(meshNoBound, file = "data/meshNoBound.Rdata")
 

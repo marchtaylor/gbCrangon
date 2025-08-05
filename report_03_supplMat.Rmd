@@ -332,6 +332,24 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 \pagebreak
 
 
+### Prediction uncertainty
+
+Spatial patterns in the coefficient of variation (sd/mean) of yearly predicted biomass in the combined size fraction model are shown in Figure S`r paste0(iFig+1)`. As expected, the patterns reflect distance to observed biomass positions, with relatively higher uncertainties in less-sampled deeper areas as well as some nearshore estuaries.  
+
+```{r, echo=FALSE}
+fname <- file.path("output/cv_maps_combined.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Coefficient of variation (sd/mean) for predicted biomass by year in the combined size fraction model. 
+
+<br>
+<br>
+
+\pagebreak
+
+
 #	LPUE versus biomass index
 
 The call to the General Linear Model (GLM) describing landings per unit effort (LPUE) as a function of biomass was as follows:

@@ -1,0 +1,126 @@
+---
+title: "Manuscript Tables"
+subtitle: "Estimation of brown shrimp stock and fishery dynamics in the German Bight using a novel biomass index"
+
+author: 
+  - Marc H. Taylor, Holger Haslob, Kim Hünerlage, Karl Michael Werner, and Alexander Kempf
+
+
+
+
+output:
+  
+  # pdf_document:
+  #   latex_engine: xelatex
+  #   number_sections: TRUE
+  #   toc_depth: 3
+  #   highlight: tango
+  #   keep_tex:  true
+    
+  word_document:
+    # toc: true # inclusion will prevent update when .doc is open
+    toc_depth: 3
+    highlight: tango
+    reference_docx: data/template.docx
+
+papersize: a4
+bibliography: data/refs.bib
+csl: data/style.csl
+---
+
+```{r setup, include=FALSE}
+library(png)
+library(formatR)
+library(knitr)
+library(flextable)
+library(ggplot2)
+library(sinkr)
+library(tidyr)
+library(kableExtra)
+library(flextable)
+library(mgcv)
+library(sdmTMB)
+
+
+knitr::opts_chunk$set(
+  cache = FALSE, # TRUE for speed. Remember to empty cache after changes to R code sections
+  cache.path = 'cache_supplMat/', fig.path  ='tex_supplMat/',
+  # fig.align='center',
+  comment=NA,
+  message=FALSE, warning=FALSE, echo=TRUE,
+  tidy.opts=list(width.cutoff=60), tidy=TRUE # automatically wraps code
+)
+
+options(knitr.kable.NA = '')
+
+# set global flextable layout
+fonttype <- "Arial"
+set_flextable_defaults(
+  # font.family = "Palatino Linotype",
+  # hansi.family = "Palatino Linotype",
+  # cs.family = "Palatino Linotype",
+  font.family = fonttype,
+  hansi.family = fonttype,
+  cs.family = fonttype,
+  font.size = 8.5,
+  theme_fun = "theme_vanilla",
+  big.mark = "" # no 1000 separator
+)
+
+
+
+# set.seed(1)
+iFig = 0
+iTab = 0
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+
+### Cross validation model statistics
+
+**Table `r iTab=iTab+1; iTab`.** Cross-validation performance metrics for each biomass size fraction model. Stars indicate the best performance of each metric by model.
+
+```{r model_selection, echo=FALSE}
+
+L <- vector("list")
+for(size in c("small", "large", "combined")){
+  fnameAppendix <- size
+  load(file = file.path("model", paste0("modlut", "_", fnameAppendix, ".Rdata")))
+  
+  hit <- sort(which(names(modlut) %in% c("mre", "mare", "mae", "mdae", "rmse", "logrmse")))
+  modlut[,hit] <- apply(modlut[,hit], MARGIN = 2, FUN = function(x){
+    paste0(sprintf("%.3f", x), ifelse(x^2 == min(x^2, na.rm = T), "*", " "))
+  })
+  
+  hit <- sort(which(names(modlut) %in% c("logLik")))
+  x <- modlut[,hit]
+  modlut[,hit] <- paste0(sprintf("%.0f", x), ifelse(x == max(x, na.rm = T), "*", " "))
+  
+  modlut$fraction <- fnameAppendix
+  L[[size]] <- modlut
+}
+
+# combine
+lut <- do.call("rbind", L)
+lut <- lut[,c("fraction", "name", "mre", "mare", "logLik")]
+names(lut) <- c("Fraction", "Model", "MRE", "MARE", "logLik")
+
+# ft <- flextable(lut, col_keys = c("fraction", "Model", "rmse", "logrmse", "mae", "logLik"))
+ft <- flextable(lut)
+ft <- bg(ft, part = "header", bg = "grey80")
+ft <- set_table_properties(ft, layout = "autofit")
+ft <- merge_v(ft, j = ~ Fraction)
+ft
+
+```
+
+<br>
+<br>
+

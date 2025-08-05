@@ -103,6 +103,7 @@ bathy_df <- as.data.frame(bathy2, xy = TRUE)
 
 land_fill <- "darkseagreen3"
 land_col <- "darkgreen"
+
 p1 <- ggplot() +
   geom_raster(data = bathy_df, aes(x = x, y = y, fill = elevation), interpolate = F) +
   geom_hline(yintercept = seq(53, 56, 0.5), linetype = 3, linewidth = 0.5, col = "white") +
@@ -287,7 +288,7 @@ image(b, add = TRUE, col = colors, breaks = breaks)
 plot(eez12nm_GER$geometry, add = TRUE, col = NA, border = "yellow", lwd = 2)
 plot(marbound$geometry, add = TRUE, col = "orange", lwd = 2)
 plot(coast, add = TRUE, col = "white", border = NA)
-plot(amrum, col = "red", cex = 1, add = T, pch = 8, lwd = 1)
+plot(amrum, col = "yellow", cex = 1.5, add = T, pch = 10, lwd = 1.5)
 
 box()
 op2 <- par(no.readonly = T)
