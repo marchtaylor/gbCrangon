@@ -431,7 +431,7 @@ L <- list()
 for(size in c("combined", "large", "small")){
   fname <- file.path("model", paste0("bestmod_", size, ".Rdata"))
   load(fname, verbose = T)
-  L[[size]] <- data.frame(resid = residuals(bestmod), frac = size)
+  L[[size]] <- data.frame(resid = residuals(bestmod, type = "mle-mvn"), frac = size)
   rm(bestmod)
 }
 

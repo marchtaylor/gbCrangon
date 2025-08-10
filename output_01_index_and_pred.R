@@ -48,13 +48,16 @@ for(size in sizeGroups){
   
   # checks and marginal effects ---------------------------------------------
   
-  AIC(bestmod)
-  summary(bestmod)
-  sanity(bestmod)
+  # AIC(bestmod)
+  # summary(bestmod)
+  san <- sanity(bestmod)
+  
+  (fname <- file.path("output", paste0("sanity_check", "_", fnameAppendix, ".Rdata")))
+  save(san, file = fname)
   
   # qqplot
-  tmp <- residuals(bestmod) # randomized quantile residuals
-  
+  tmp <- residuals(bestmod, type = "mle-mvn") # randomized quantile residuals
+
   (fname <- file.path("output", paste0("qqplot", "_", fnameAppendix, ".png")))
   png(fname, width = 5, height = 4.5, units = "in", res = 1000)
   qqnorm(tmp)
@@ -70,7 +73,7 @@ for(size in sizeGroups){
     logSweptArea = log(1000)
   )
   p <- predict(bestmod, newdata = nd, se_fit = TRUE, re_form = NA, offset = nd$logSweptArea)
-  
+
   p2 <- ggplot(p) + 
     aes(x = z, y = exp(est), 
       ymin = exp(est - 1.96 * est_se),

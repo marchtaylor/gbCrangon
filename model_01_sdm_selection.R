@@ -246,12 +246,12 @@ for(size in sizeGroups){
   for(i in seq(modlut$name)){
     mod <- get(modlut$name[i])
 
-    MRE[i] <- with(mod$data, median((B - cv_predicted)/B))
-    MARE[i] <- with(mod$data, median(abs(B - cv_predicted)/B))
-    MAE[i] <- with(mod$data, mean(abs(B - cv_predicted)))
-    MdAE[i] <- with(mod$data, median(abs(B - cv_predicted)))
+    MRE[i] <- with(mod$data, median((cv_predicted-B)/B))
+    MARE[i] <- with(mod$data, median(abs(cv_predicted - B)/B))
+    MAE[i] <- with(mod$data, mean(abs(cv_predicted-B)))
+    MdAE[i] <- with(mod$data, median(abs(cv_predicted-B)))
     
-    RMSE[i] <- with(mod$data, sqrt(mean((B - cv_predicted)^2)))
+    RMSE[i] <- with(mod$data, sqrt(mean((B-cv_predicted)^2)))
     logRMSE[i] <- with(mod$data, sqrt(mean((log(B+1) - log(cv_predicted+1))^2)))
 
     logLik[i] <- with(mod, sum_loglik)
@@ -296,13 +296,17 @@ for(size in sizeGroups){
   t2-t1
   beepr::beep()
   
-  summary(bestmod)
-  sanity(bestmod)
-  tmp <- residuals(bestmod) # randomized quantile residuals
-  qqnorm(tmp)
-  qqline(tmp)
+  # summary(bestmod)
+  # sanity(bestmod)
+  # tmp <- residuals(bestmod, type = "mle-mvn") # randomized quantile residuals
+  # qqnorm(tmp)
+  # qqline(tmp)
   
-  
+  # sbestmod <- simulate(bestmod, nsim = 500, type = "mle-mvn")
+  # 
+  # r_bestmod <- dharma_residuals(sbestmod, bestmod, return_DHARMa = TRUE)
+  # plot(r_bestmod)
+  # tmp <- DHARMa::testResiduals(r_bestmod)
   
   # save outputs ------------------------------------------------------------
   

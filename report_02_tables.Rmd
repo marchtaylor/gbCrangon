@@ -3,7 +3,7 @@ title: "Manuscript Tables"
 subtitle: "Estimation of brown shrimp stock and fishery dynamics in the German Bight using a novel biomass index"
 
 author: 
-  - Marc H. Taylor, Holger Haslob, Kim Hünerlage, Karl Michael Werner, and Alexander Kempf
+  - Marc H. Taylor, Holger Haslob, Kim Hünerlage, and Alexander Kempf
 
 
 
