@@ -34,7 +34,7 @@ generate_package_versions_md <- function(pkgs, md_file = "package_versions.md") 
 
 pkgs <- c(
   "tidyr", "dplyr", "data.table", "pals", "sinkr", 
-  "ggplot2", "ggeffects", "ggrepel", "patchwork", 
+  "ggplot2", "ggeffects", "ggrepel", "hexbin", "patchwork", 
   "zoo", "terra", "sf", "sp", "ncdf4", "smoothr", "maps", "mapdata", 
   "INLA", "sdmTMB", "mgcv", "spatialsample", "ncf", "parallel", "future", "rmarkdown")
 

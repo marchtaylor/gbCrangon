@@ -26,18 +26,19 @@ The scripts should be run in the following sequence:
   - output_04_aux_figures.R - produces additional figures
 - **report.R**
   - report_01_gen_pkg_vers.R - extract package versions used by the analysis
-  - report_02_supplMat.Rmd - produces the supplementary material document
-  - report_03_fig_transfer.R - transfers and renames numbered manuscript figures
+  - report_02_tables.Rmd - produces tables used in the manuscript
+  - report_03_supplMat.Rmd - produces the supplementary material document
+  - report_04_fig_transfer.R - transfers and renames numbered manuscript figures
 
 
 
 <!-- paste(version$major, version$minor, sep = ".") -->
-As of June 2025, this analysis has been run in R Version 4.4.2, with the following package versions:  
+As of September 2025, this analysis has been run in R Version 4.4.2, with the following package versions:  
 
 ```{r echo=FALSE}
 pkgs <- c(
   "tidyr", "dplyr", "data.table", "pals", "sinkr", 
-  "ggplot2", "ggeffects", "ggrepel", "patchwork", 
+  "ggplot2", "ggeffects", "ggrepel", "hexbin", "patchwork", 
   "zoo", "terra", "sf", "sp", "ncdf4", "smoothr", "maps", "mapdata", 
   "INLA", "sdmTMB", "mgcv", "spatialsample", "ncf", "parallel", "future", "rmarkdown")
 

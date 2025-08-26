@@ -20,6 +20,7 @@ library(sinkr)
 library(ggplot2)
 library(ggeffects)
 library(ggrepel)
+library(hexbin)
 library(patchwork)
 library(zoo)
 

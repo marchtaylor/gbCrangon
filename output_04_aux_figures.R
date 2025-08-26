@@ -452,6 +452,57 @@ png(fname, width = 7, height = 3.5, units = "in", res = 1000)
 dev.off()
 
 
+# prediction bias -----
+L <- list()
+for(size in c("combined", "large", "small")){
+  fname <- file.path("model", paste0("bestmod_", size, ".Rdata"))
+  load(fname, verbose = T)
+  pred <- predict(bestmod, newdata = bestmod$data, type = "response", offset = bestmod$offset)
+
+  L[[size]] <- data.frame(x = pred$B/pred$sweptArea*1000, y = pred$est/pred$sweptArea*1000, frac = size)
+  rm(bestmod); rm(pred)
+}
+
+# Custom log tick generator
+log_ticks <- function(x, bases = c(1, 2, 5), extend = c(1,1)) {
+  rng <- range(x[x > 0], na.rm = TRUE)*extend
+  min_exp <- floor(log10(rng[1]))
+  max_exp <- ceiling(log10(rng[2]))
+  ticks <- as.vector(outer(10^(min_exp:max_exp), bases, "*"))
+  ticks <- sort(ticks)
+  ticks[ticks >= rng[1] & ticks <= rng[2]]
+}
+
+label_drop_zeros <- function(digits = 6) {
+  function(x) {
+    x <- round(x, digits)  # avoid 0.499999 artifacts
+    sub("\\.?0+$", "", format(x, trim = TRUE, scientific = FALSE))
+  }
+}
+df <- do.call("rbind", L)
+
+# Plot
+p <- ggplot(df, aes(x, y, group = frac)) +
+  facet_wrap(~frac, ncol = 3) +
+  geom_hex(bins = 60) +
+  scale_x_log10(breaks = log_ticks(df$x, bases = 1, extend = c(1, 1.2)), labels = label_drop_zeros()) +
+  scale_y_log10(breaks = log_ticks(df$y, bases = 1, extend = c(1, 1.2)), labels = label_drop_zeros()) +
+  geom_abline(slope = 1, intercept = 0, linetype = 2, color = "grey", linewidth = 0.7) +
+  scale_fill_continuous(type = "viridis") +
+  labs(x = bquote("Observed biomass ["*t~km^-2*"]"), y = bquote("Predicted biomass ["*t~km^-2*"]")) +
+  theme_bw() +
+  theme(text = element_text(size = 8),
+    strip.text = element_text(size = 10) )
+
+(fname <- file.path("output", paste0("obs_vs_pred_by_fraction.png")))
+png(fname, width = 7.5, height = 3, units = "in", res = 1000)
+  print(p)
+dev.off()
+
+
+
+
+
 # Reconstruction -----------------------------
 load(file = "output/recon.Rdata", verbose = TRUE)
 agg <- aggregate(hr~year, data = recon, subset= month %in% c(3:11), FUN = "mean")

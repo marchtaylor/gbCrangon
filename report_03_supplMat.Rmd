@@ -121,7 +121,7 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 
 ## Model description
 
-Spatial mesh used by the SPDE (stochastic partial differential equation) based approach is shown in Figure S`r iFig+1`. Conversion to UTM units, max. mesh edge length was set to 20 km for the inner boundary. An exterior barrier was defined using a spatial polygon defining the coastline, major islands, and an outer limit that approximated the furthest offshore extent of Demersal Young Fish Survey (DYFS) sample locations.
+Spatial mesh used by the SPDE (stochastic partial differential equation) based approach is shown in Figure S`r iFig+1`. Before mesh creation, latitude and longitude coordinates were converted to equidistant projection (UTM) coordinates to ensure constant distance units across the study area. A maximum edge length of 20 km was used for the interior mesh area. An exterior barrier was defined using a spatial polygon defining the coastline, major islands, and an outer limit that approximated the furthest offshore extent of Demersal Young Fish Survey (DYFS) sample locations.
   
   
 ```{r, echo=FALSE}
@@ -130,7 +130,7 @@ tmp <- readPNG(fname)
 knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 ```
 
-**Figure S`r iFig=iFig+1; iFig`.** SPDE (Stochastic Partial Differential Equation) mesh used to define spatial and spatiotemporal terms in the sdmTMB model (@anderson_sdmtmb_2022). Interpolation is prevented across the barrier (blue line), defined by the coastline, major islands, and an outer limit that approximate the furthest offshore extent of DYFS sample locations. 
+**Figure S`r iFig=iFig+1; iFig`.** SPDE (Stochastic Partial Differential Equation) mesh used to define spatial and spatiotemporal terms in the sdmTMB model [@anderson_sdmtmb_2022]. Interpolation is prevented across the barrier (blue line), defined by the coastline, major islands, and an outer limit that approximate the furthest offshore extent of DYFS sample locations. 
 
 <br>
 <br>
@@ -161,7 +161,7 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 
 `r fnameAppendix <- "small"`
 
-**Table S`r iTab=iTab+1; iTab`.** Best model (mod3cv_tw_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
+**Table S`r iTab=iTab+1; iTab`.** Best model (mod3_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
 
 ```{r, echo = FALSE}
 fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
@@ -187,7 +187,7 @@ ft
 
 `r fnameAppendix <- "large"`
 
-**Table S`r iTab=iTab+1; iTab`.** Best model (mod3cv_tw_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
+**Table S`r iTab=iTab+1; iTab`.** Best model (mod3_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
 
 ```{r, echo = FALSE}
 fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
@@ -213,7 +213,7 @@ ft
 
 `r fnameAppendix <- "combined"`
 
-**Table S`r iTab=iTab+1; iTab`.** Best model (mod3cv_tw_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
+**Table S`r iTab=iTab+1; iTab`.** Best model (mod3_st_ar1) parameter summary for the `r fnameAppendix` size fraction model.
 
 ```{r, echo = FALSE}
 fname <- file.path("model", paste0("bestmod_", fnameAppendix, ".Rdata"))
@@ -253,9 +253,26 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 \pagebreak
 
 
-### Prediction and index
+### Observed versus predicted values
 
-Figures S`r paste0(iFig+1, "-", iFig+2)` show the predicted biomass by year for the small and large size fractions. A comparison of the aggregated yearly index from the small and large biomass fraction models is compared to the single index of combined biomass model in Figure S`r iFig+3`
+```{r, echo=FALSE}
+fname <- file.path("output/obs_vs_pred_by_fraction.png")
+tmp <- readPNG(fname)
+knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
+```
+
+**Figure S`r iFig=iFig+1; iFig`.** Plots of observed versus predicted values (binned) from the best fitting model by size fraction. Colors indicate the number of  aggregated samples within discrete x-y bins. The dashed grey line indicates the 1:1 identity line for reference. As the values are shown on a log-scale, zero-value observations are not shown (n = 17 of 8058, ~0.2\% of total samples).
+
+<br>
+<br>
+
+\pagebreak
+
+
+
+### Prediction to model domain and calculation of total biomass index
+
+Figures S`r paste0(iFig+1, "-", iFig+2)` show the predicted biomass by year for the small and large size fractions. A comparison of the summation of yearly indices from the small and large biomass fraction models is compared to the single index of combined biomass model in Figure S`r iFig+3`
 
 ```{r, echo=FALSE}
 fname <- file.path("output/pred_maps2_small.png")
@@ -263,7 +280,7 @@ tmp <- readPNG(fname)
 knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 ```
 
-**Figure S`r iFig=iFig+1; iFig`.** Spatially-predicted biomass by year for the small size fraction. 
+**Figure S`r iFig=iFig+1; iFig`.** Prediction to grid by year for the small biomass model. Points indicate location of survey samples for each year. The total biomass estimate of each year is shown in the lower-right corner of each map.
 
 <br>
 <br>
@@ -277,7 +294,7 @@ tmp <- readPNG(fname)
 knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 ```
 
-**Figure S`r iFig=iFig+1; iFig`.** Spatially-predicted biomass by year for the large size fraction. 
+**Figure S`r iFig=iFig+1; iFig`.** Prediction to grid by year for the large biomass model. Points indicate location of survey samples for each year. The total biomass estimate of each year is shown in the lower-right corner of each map.
 
 <br>
 <br>
@@ -303,7 +320,6 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 
 The effect of depth as modeled by the best model is shown in Figure S`r iFig+1`. 
 
-
 ```{r, echo=FALSE}
 fname <- file.path("output/depthEffect.png")
 tmp <- readPNG(fname)
@@ -314,6 +330,8 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 
 <br>
 <br>
+
+\pagebreak
 
 Part of the depth effect is captured by the random spatiotemporal fields, which consistently predicts higher biomass in the nearshore areas. Examination of the median predictions across sample years shows the overall trend in biomass versus depth. Figure S`r iFig+1` describes this trend using a Generalized Additive Model (GAM) [R package *mgcv*, @wood_mgcv_2020], with median predicted biomass as the response, and a spline term on depth as the explanatory variable. The model assumes a Gaussian error distribution with log-link. The trend shows a somewhat stronger decrease in biomass with increasing depth for the small biomass fraction. 
 
@@ -362,7 +380,7 @@ LregrSep$combined$fit$call
 <br>
 <br>
 
-**Table S`r iTab=iTab+1; iTab`.** Model of LPUE as a function of biomass. For each model, based on unique time period and size fraction combinations, the relationship coefficient estimates and confidence interval (95%), relationship shape type and $R^2$ are presented. 
+**Table S`r iTab=iTab+1; iTab`.** Model of LPUE as a function of biomass. For each model, based on unique time period and size fraction combinations, the relationship coefficients, confidence intervals (95%), relationship shape type, and $R^2$ are presented. 
 
 ```{r echo=FALSE}
 load("output/lpue~biomass_Lregr.Rdata")
@@ -421,6 +439,7 @@ names(res) <- c("Period", "Size fraction", "coef.", "Estimate (CI)", "Shape", "R
 
 ft <- flextable(res)
 ft <- bg(ft, part = "header", bg = "grey80")
+ft <- italic(ft, j = 3)
 ft <- set_table_properties(ft, layout = "autofit")
 ft <- merge_v(ft, j = c("Period", "Size fraction", "R2"))
 for(i in seq(1,nrow(res),2)){
@@ -454,7 +473,7 @@ fit$call
 
 
 
-**Table S`r iTab=iTab+1; iTab`.** GAM model summary of discard rate as a function of year (annual term) and fraction of year (seasonal term). 
+**Table S`r iTab=iTab+1; iTab`.** GAM model summary of discard rate as a function of year (annual term) and fractional year (seasonal term). 
 
 ```{r echo=FALSE}
 fit <- readRDS("output/discardRate_gam.rds")
@@ -479,7 +498,7 @@ drSumLab <- as.character(paste0(round(drSum$DR[1], 2), " (", drSum$mon[1], ") - 
 ```
 
 
-The resulting mean monthly average discard rates used for the pre-data historical period (2000-2013) ranged between  `r drSumLab`.
+The resulting mean monthly average discard rates used for the pre-data historical period (2000-2012) ranged between  `r drSumLab`.
 
 <br>
 <br>
@@ -502,7 +521,7 @@ bfit.inv$call
 
 A summary of the resulting relationship is presented in Table S`r iTab+1` and shown in Figure S`r iFig+1`.
 
-**Table S`r iTab=iTab+1; iTab`.** Model of CPUE as a function of biomass. The relationship coefficient estimates and confidence interval (95%), relationship shape type and $R^2$ are presented.
+**Table S`r iTab=iTab+1; iTab`.** Model of CPUE as a function of the combines biomass estimate. The relationship coefficient estimates and confidence interval (95%), relationship shape type and $R^2$ are presented.
 
 
 ```{r echo=FALSE}
@@ -535,6 +554,7 @@ res <- res[, c("coeff", "Estimate_ci", "shape", "r2")]
 names(res) <- c("coef.", "Estimate (CI)", "Shape", "R2")
 
 ft <- flextable(res)
+ft <- italic(ft, j = 1)
 ft <- bg(ft, part = "header", bg = "grey80")
 ft <- set_table_properties(ft, layout = "autofit")
 ft <- merge_v(ft, j = c("R2", "Shape"))
@@ -555,7 +575,7 @@ tmp <- readPNG(fname)
 knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 ```
 
-**Figure S`r iFig=iFig+1; iFig`.** Biomass estimate vs catch per unit effort (CPUE). 
+**Figure S`r iFig=iFig+1; iFig`.** Combined biomass estimate versus catch per unit effort (CPUE). Regression is shown by the dark grey line with shaded area showing the confidence intervals (95%). The $R^2$ of the relationship is indicated at the top-left.
 
 
 <br>
@@ -564,7 +584,7 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 \pagebreak
 
 
-The inverse relationship, with exploitable biomass as the response variable and CPUE as the explanatory variable was used to predict monthly exploitable biomass in the entire time series. The call to the GLM was as follows:
+The inverse relationship, with the combined biomass estimate as the response variable and CPUE as the explanatory variable was used to predict monthly exploitable biomass in the entire time series. The call to the GLM was as follows:
 
 ```{r echo = FALSE}
 load("output/biomass~cpue_bfit.Rdata")
@@ -606,6 +626,7 @@ res <- res[, c("coeff", "Estimate_ci", "shape", "r2")]
 names(res) <- c("coef.", "Estimate (CI)", "Shape", "R2")
 
 ft <- flextable(res)
+ft <- italic(ft, j = 1)
 ft <- bg(ft, part = "header", bg = "grey80")
 ft <- set_table_properties(ft, layout = "autofit")
 ft <- merge_v(ft, j = c("R2", "Shape"))
@@ -646,7 +667,6 @@ knitr::include_graphics(fname, dpi = floor(dim(tmp)[2]/6))
 **Figure S`r iFig=iFig+1; iFig`.** Number of vessels in the German fleet that target brown shrimp by year.   
 
 
-<br>
 <br>
 
 \pagebreak

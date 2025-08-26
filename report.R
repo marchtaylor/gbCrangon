@@ -3,7 +3,7 @@
 rm(list = ls())
 
 
-# run scripts -------------------------------------------------------------
+# package versions for Github repo -------------------------------------------------------------
 
 source("report_01_gen_pkg_vers.R")
 

@@ -245,14 +245,19 @@ for(size in sizeGroups){
 
   for(i in seq(modlut$name)){
     mod <- get(modlut$name[i])
-
-    MRE[i] <- with(mod$data, median((cv_predicted-B)/B))
-    MARE[i] <- with(mod$data, median(abs(cv_predicted - B)/B))
-    MAE[i] <- with(mod$data, mean(abs(cv_predicted-B)))
-    MdAE[i] <- with(mod$data, median(abs(cv_predicted-B)))
+    nonZero <- which(mod$data$B != 0)
+    est <- mod$data$cv_predicted
+    obs <- mod$data$B
+    rerr <- ((est-obs)/obs) # relative error
+    err <- obs-est # residuals
     
-    RMSE[i] <- with(mod$data, sqrt(mean((B-cv_predicted)^2)))
-    logRMSE[i] <- with(mod$data, sqrt(mean((log(B+1) - log(cv_predicted+1))^2)))
+    MRE[i] <- median(rerr)
+    MARE[i] <- median(abs(rerr))
+    MAE[i] <- mean(abs(err))
+    MdAE[i] <- median(abs(err))
+    
+    RMSE[i] <- sqrt(mean((err)^2))
+    logRMSE[i] <- sqrt(mean((log(obs+1) - log(est+1))^2))
 
     logLik[i] <- with(mod, sum_loglik)
   }

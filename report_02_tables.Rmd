@@ -110,6 +110,7 @@ for(size in c("small", "large", "combined")){
 # combine
 lut <- do.call("rbind", L)
 lut <- lut[,c("fraction", "name", "mre", "mare", "logLik")]
+lut$name <- unlist(lapply(strsplit(lut$name, "_"), function(x){paste(c(substr(x[1],1,4), x[-(1:2)]), collapse = "_")}))
 names(lut) <- c("Fraction", "Model", "MRE", "MARE", "logLik")
 
 # ft <- flextable(lut, col_keys = c("fraction", "Model", "rmse", "logrmse", "mae", "logLik"))
