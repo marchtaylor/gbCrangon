@@ -36,8 +36,8 @@ The scripts should be run in the following sequence:
 
 <!-- paste(version$major, version$minor, sep = ".") -->
 
-As of September 2025, this analysis has been run in R Version 4.4.2,
-with the following package versions:
+As of August 2025, this analysis has been run in R Version 4.4.2, with
+the following package versions:
 
     ##  [1] "tidyr (1.3.1)"         "dplyr (1.1.4)"         "data.table (1.17.0)"  
     ##  [4] "pals (1.9)"            "sinkr (0.7.4)"         "ggplot2 (3.5.1)"      
